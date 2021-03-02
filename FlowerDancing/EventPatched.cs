@@ -19,20 +19,93 @@ namespace FlowerDancing
 			Monitor = monitor;
 		}
 
-		public static void setUpFestivalMainEvent_Kelly(StardewValley.Event __instance)
-		{
-			if(Monitor is null || __instance is null)
-			{
-				return;
-			}
-
-			else if(Game1.dayOfMonth != 24 && Game1.currentSeason != "spring")
-			{
-				return;
-			}
-
+		public static void setUpPlayerControlSequence_Kelly(Event __instance, string id)
+        {
 			try
 			{
+				// using the default condition for the method
+				if(Monitor is null || __instance is null || id != "flowerFestival")
+				{
+					return;
+				}
+				
+				Hat hat = null;
+				Clothing shirt = null;
+				Clothing pants = null;
+				Boots boots = null;
+
+				// undress without actually taking off the items
+
+				if (Game1.player?.hat?.Value != null)
+				{
+					hat = Game1.player.hat.Value;
+					Game1.player.hat.Value = null;
+				}
+
+				if (Game1.player?.shirtItem?.Value != null)
+				{
+					shirt = Game1.player.shirtItem.Value;
+					Game1.player.shirtItem.Value = null;
+				}
+
+				if (Game1.player?.pantsItem?.Value != null)
+				{
+					pants = Game1.player.pantsItem.Value;
+					Game1.player.pantsItem.Value = null;
+				}
+
+				if (Game1.player?.boots?.Value != null)
+				{
+					boots = Game1.player.boots.Value;
+					Game1.player.boots.Set(null);
+
+					Game1.player.changeShoeColor(12);
+				}
+
+				// reequip the clothes
+
+				__instance.onEventFinished += delegate
+				{
+					if (hat != null)
+					{
+						Game1.player.hat.Value = hat;
+					}
+					if (shirt != null)
+					{
+						Game1.player.shirtItem.Value = shirt;
+					}
+					if (pants != null)
+					{
+						Game1.player.pantsItem.Value = pants;
+					}
+					if (boots != null)
+					{
+						Game1.player.boots.Set(boots);
+						if (boots != null)
+						{
+							Game1.player.changeShoeColor(boots.indexInColorSheet);
+						}
+					}
+				};
+			}
+			catch(Exception e)
+			{
+				Monitor.Log($"Failed in {nameof(EventPatched)}:\n{e}", LogLevel.Error);
+			}
+        }
+
+		// TODO I think you currently make the players invisible if they are not participating
+
+		public static void setUpFestivalMainEvent_Kelly(StardewValley.Event __instance)
+		{
+			try
+			{
+				// using the default condition for the method
+				if(Monitor is null || __instance is null || !__instance.isSpecificFestival("spring24"))
+				{
+					return;
+				}
+				
 				isMalePosition = true;
 				string[] eventCommands = __instance.eventCommands;
 
@@ -75,7 +148,6 @@ namespace FlowerDancing
 					__instance.eventCommands = newEventCommands;
 				}
 			}
-
 			catch(Exception e)
 			{
 				Monitor.Log($"Failed in {nameof(EventPatched)}:\n{e}", LogLevel.Error);

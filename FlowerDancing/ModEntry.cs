@@ -24,6 +24,11 @@ namespace FlowerDancing
                original: AccessTools.Method(typeof(StardewValley.Event), nameof(StardewValley.Event.setUpFestivalMainEvent)),
                postfix: new HarmonyMethod(typeof(EventPatched), nameof(EventPatched.setUpFestivalMainEvent_Kelly))
             );
+			
+			harmony.Patch(
+               original: AccessTools.Method(typeof(Event), nameof(Event.setUpPlayerControlSequence)),
+               postfix: new HarmonyMethod(typeof(EventPatched), nameof(EventPatched.setUpPlayerControlSequence_Kelly))
+		    );
 
             Monitor.Log("Kelly's Flower Dancing started using Harmony.", LogLevel.Debug);
         }
